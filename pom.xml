@@ -8,7 +8,7 @@
         <version>3.3.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>org.materials.io</groupId>
+    <groupId>com.materials.io</groupId>
     <artifactId>kafka-creditcard-consumer</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>kafka-creditcard-consumer</name>
