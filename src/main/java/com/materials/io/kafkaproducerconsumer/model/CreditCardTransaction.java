@@ -15,4 +15,5 @@ public class CreditCardTransaction {
     private Double amount;
     private long timeStampInMillis; // millis is for timezone computations
     private String merchantId;
+    private String status;
 }

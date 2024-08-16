@@ -1,5 +1,6 @@
 package com.materials.io.kafkaconsumer.consumer;
 
+import com.materials.io.kafkaconsumer.repository.CreditCardTransactionRepository;
 import lombok.extern.slf4j.Slf4j;
 import com.materials.io.kafkaconsumer.exception.CreditCardErrorCodes;
 import com.materials.io.kafkaconsumer.exception.CreditCardLimitException;
@@ -20,6 +21,9 @@ public class CreditCardMessageConsumer {
     private String CREDIT_CARD_ERROR_DLT = "creditcard-payment-topic-event-DLT";
 
     @Autowired
+    private CreditCardTransactionRepository transactionRepository;
+
+    @Autowired
     private KafkaTemplate<String, CreditCardTransaction> kafkaTemplate;
 
     @KafkaListener(topics = "creditcard-payment-topic-event", containerFactory = "userKafkaListenerFactory")
@@ -31,11 +35,15 @@ public class CreditCardMessageConsumer {
                 throw new CreditCardLimitException(9001, "Credit card Limit exceeded");
             } catch (CreditCardLimitException e) {
                 //publish into DLQ topic
+                creditCardTransaction.setStatus("UNAUTHORIZED");
+                transactionRepository.save(creditCardTransaction);
                 kafkaTemplate.send(CREDIT_CARD_ERROR_DLT, creditCardTransaction);
 
             }
         }
-        log.info("Received Message: {} ", creditCardTransaction);
+        creditCardTransaction.setStatus("SUCCESS");
+        transactionRepository.save(creditCardTransaction);
+        log.info("Received and processed Message: {} ", creditCardTransaction);
     }
 
     @KafkaListener(topics = "creditcard-payment-topic-event-DLT", containerFactory = "userKafkaListenerFactory")
